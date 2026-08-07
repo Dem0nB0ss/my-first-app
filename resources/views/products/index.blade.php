@@ -6,7 +6,6 @@
             {{ $title }}
         </h1>
 
-        <!-- ✅ 1. Dùng thẻ <a> để chuyển hướng sang trang Form thêm -->
         <a href="/products/create"
            class="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700">
             + Thêm sản phẩm
@@ -18,7 +17,7 @@
             <thead class="bg-gray-100">
                 <tr class="text-left text-sm uppercase tracking-wider text-gray-600">
                     <th class="px-6 py-4">ID</th>
-                    <th class="px-6 py-4">Danh mục</th>
+                    <th class="px-6 py-4">Danh mục</th> <!-- ✅ Hiển thị tên danh mục -->
                     <th class="px-6 py-4">Tên sản phẩm</th>
                     <th class="px-6 py-4">Giá</th>
                     <th class="px-6 py-4 text-center">Hành động</th>
@@ -28,16 +27,18 @@
             <tbody class="divide-y divide-gray-200 text-gray-700">
                 @foreach ($products as $item)
                 <tr class="transition hover:bg-gray-50">
-                    <!-- ✅ Truy cập thuộc tính dạng Object -> -->
                     <td class="px-6 py-4 font-semibold">
                         {{ $item->id }} 
                     </td>
 
+                    <!-- ✅ 1. Gọi Relationship $item->category->name thay vì chỉ hiện ID -->
                     <td class="px-6 py-4">
-                        {{ $item->category_id }}
+                        <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                            {{ $item->category->name ?? 'Chưa phân loại' }}
+                        </span>
                     </td>
 
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 font-medium text-gray-900">
                         {{ $item->name }}
                     </td>
 
@@ -50,23 +51,23 @@
 
                             <!-- Nút Xem chi tiết -->
                             <a href="/products/{{ $item->id }}"
-                               class="rounded-lg bg-sky-500 px-3 py-2 text-white hover:bg-sky-600">
+                               class="rounded-lg bg-sky-500 px-3 py-2 text-sm text-white hover:bg-sky-600 transition">
                                 Xem
                             </a>
 
-                            <!-- ✅ 2. Nút Sửa là thẻ <a> chuyển hướng tới URL /products/{id}/edit -->
+                            <!-- Nút Sửa -->
                             <a href="/products/{{ $item->id }}/edit"
-                               class="rounded-lg bg-yellow-500 px-3 py-2 text-white hover:bg-yellow-600">
+                               class="rounded-lg bg-yellow-500 px-3 py-2 text-sm text-white hover:bg-yellow-600 transition">
                                 Sửa
                             </a>
 
-                            <!-- ✅ 3. Nút Xóa BẮT BUỘC nằm trong Form POST + @method('DELETE') -->
+                            <!-- Nút Xóa -->
                             <form action="/products/{{ $item->id }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" 
                                         onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')"
-                                        class="rounded-lg bg-red-500 px-3 py-2 text-white hover:bg-red-600">
+                                        class="rounded-lg bg-red-500 px-3 py-2 text-sm text-white hover:bg-red-600 transition">
                                     Xóa
                                 </button>
                             </form>
