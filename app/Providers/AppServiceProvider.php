@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Model;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,5 +23,8 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         Schema::defaultStringLength(191);
+
+        // Báo lỗi ngay lập tức nếu lỡ quên viết with() trong môi trường dev
+        Model::preventLazyLoading(! app()->isProduction());
     }
 }
