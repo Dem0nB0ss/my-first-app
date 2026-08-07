@@ -13,7 +13,7 @@ class ProductController extends Controller
         
         // ✅ Tối ưu N+1 Query bằng Eager Loading (Dùng hàm with)
         // Dù có 1.000 hay 100.000 sản phẩm thì cũng chỉ chạy đúng 2 câu SQL!
-        $products = Product::with('category')->get();
+        $products = Product::with('category')->paginate(10);
 
         return view('products.index', compact('title', 'products'));
     }

@@ -78,5 +78,8 @@
                 @endforeach
             </tbody>
         </table>
+        <div class="mt-4 px-6 py-3">
+            {{ $products->links() }}
+        </div>
     </div>
 </div>
