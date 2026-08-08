@@ -45,31 +45,37 @@ class ProductController extends Controller
 
     // 1. Hiển thị form thêm mới
     public function create() {
-        return view('products.create');
+        $categories = Category::all();
+        return view('products.create', compact('categories'));
     }
 
     // 2. Xử lý nhận dữ liệu từ Form và lưu vào DB
     public function store(Request $request) {
-        $validatedData = $request->validate([
-            'category_id' => 'required|exists:categories,id', // Đừng quên validate khóa ngoại category_id nhé!
+        $validated = $request->validate([
+            'category_id' => 'required|exists:categories,id', // 👈 Validate khóa ngoại bắt buộc
             'name'        => 'required|min:3|max:255',
             'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
+        ], [
+            // Custom thông báo lỗi tiếng Việt (nếu thích)
+            'category_id.required' => 'Vui lòng chọn danh mục sản phẩm!',
+            'category_id.exists'   => 'Danh mục được chọn không hợp lệ!',
         ]);
 
-        Product::create($validatedData);
+        Product::create($validated);
 
-        return redirect('/products');
+        return redirect('/products')->with('success', 'Thêm sản phẩm thành công!');
     }
 
-    // 1. Hiển thị Form sửa sản phẩm
+    // 3. Hiển thị Form Sửa sản phẩm -> Truyền cả Product và danh sách Categories
     public function edit(Product $product)
     {
         // Nhờ Route Model Binding, $product đã tự động được findOrFail() rồi!
-        return view('products.edit', compact('product'));
+        $categories = Category::all();
+        return view('products.edit', compact('product', 'categories'));
     }
 
-    // 2. Lưu thông tin sản phẩm sau khi sửa
+    // 4. Cập nhật thông tin Sản phẩm
     public function update(Request $request, Product $product)
     {
         $validatedData = $request->validate([
@@ -81,7 +87,7 @@ class ProductController extends Controller
 
         $product->update($validatedData);
 
-        return redirect('/products');
+        return redirect('/products')->with('success', 'Cập nhật sản phẩm thành công!');
     }
 
     // 3. Xóa sản phẩm
