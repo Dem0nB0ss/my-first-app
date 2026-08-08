@@ -4,18 +4,38 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Category;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $title = "Danh sách sản phẩm từ Database";
-        
-        // ✅ Tối ưu N+1 Query bằng Eager Loading (Dùng hàm with)
-        // Dù có 1.000 hay 100.000 sản phẩm thì cũng chỉ chạy đúng 2 câu SQL!
-        $products = Product::with('category')->paginate(10);
 
-        return view('products.index', compact('title', 'products'));
+        // 1. Lấy tham số từ URL
+        $keyword = $request->input('keyword');
+        $categoryId = $request->input('category_id');
+
+        // 2. Khởi tạo Query với Eager Loading
+        $query = Product::with('category');
+
+        // 3. Nếu có từ khóa tìm kiếm -> thêm điều kiện WHERE LIKE
+        if (!empty($keyword)) {
+            $query->where('name', 'LIKE', "%{$keyword}%");
+        }
+
+        // 4. Nếu có chọn danh mục -> thêm điều kiện lọc theo category_id
+        if (!empty($categoryId)) {
+            $query->where('category_id', $categoryId);
+        }
+
+        // 5. Phân trang + BẮT BUỘC DÙNG withQueryString() ĐỂ GIỮ LẠI QUERY STRING
+        $products = $query->paginate(10)->withQueryString();
+
+        // 6. Lấy danh sách Categories để đổ vào thẻ  tìm kiếm
+        $categories = Category::all();
+
+        return view('products.index', compact('title', 'products', 'categories', 'keyword', 'categoryId'));
     }
 
     // ✅ Dùng Route Model Binding: Tự động inject Product $product (không cần findOrFail)
