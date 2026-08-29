@@ -1,5 +1,6 @@
 <?php
 
+
 /*
 |--------------------------------------------------------------------------
 | Create The Application
@@ -40,6 +41,12 @@ $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
     App\Exceptions\Handler::class
 );
+
+// $app->withMiddleware(function (Middleware $middleware) {
+//     $middleware->alias([
+//         'admin' => \App\Http\Middleware\CheckAdmin::class, // 👈 Đăng ký alias 'admin'
+//     ]);
+// });
 
 /*
 |--------------------------------------------------------------------------
