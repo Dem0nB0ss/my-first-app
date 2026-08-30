@@ -12,12 +12,23 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->id(); // Tự động tạo khóa chính id (Auto Increment)
-            $table->string('name'); // Cột name kiểu VARCHAR(255)
-            $table->foreignId('category_id')->constrained(); //Khóa ngoại category id
-            $table->decimal('price', 10, 2); // Cột price kiểu số thực
-            $table->integer('stock')->default(0); // Cột số lượng tồn kho, mặc định là 0
-            $table->timestamps(); // Tự động tạo 2 cột: created_at và updated_at
+            $table->id();
+
+            $table->string('name');
+
+            $table->integer('category_id')->nullable();
+
+            $table->text('description')->nullable();
+
+            $table->decimal('price', 15, 2)->default(0);
+
+            $table->unsignedInteger('quantity')->default(0);
+
+            $table->string('image')->nullable();
+
+            $table->boolean('status')->default(true);
+
+            $table->timestamps();
         });
     }
 

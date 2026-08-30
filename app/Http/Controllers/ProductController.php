@@ -2,99 +2,210 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 
 class ProductController extends Controller
 {
+    /**
+     * Danh sách sản phẩm
+     */
     public function index(Request $request)
     {
-        $title = "Danh sách sản phẩm từ Database";
-
-        // 1. Lấy tham số từ URL
-        $keyword = $request->input('keyword');
-        $categoryId = $request->input('category_id');
-
-        // 2. Khởi tạo Query với Eager Loading
         $query = Product::with('category');
 
-        // 3. Nếu có từ khóa tìm kiếm -> thêm điều kiện WHERE LIKE
-        if (!empty($keyword)) {
+        // Tìm kiếm theo tên sản phẩm
+        if ($request->filled('keyword')) {
+            $keyword = $request->keyword;
+
             $query->where('name', 'LIKE', "%{$keyword}%");
         }
 
-        // 4. Nếu có chọn danh mục -> thêm điều kiện lọc theo category_id
-        if (!empty($categoryId)) {
-            $query->where('category_id', $categoryId);
+        // Lọc theo danh mục
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
         }
 
-        // 5. Phân trang + BẮT BUỘC DÙNG withQueryString() ĐỂ GIỮ LẠI QUERY STRING
-        $products = $query->paginate(10)->withQueryString();
+        // Phân trang và giữ query string
+        $products = $query
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
-        // 6. Lấy danh sách Categories để đổ vào thẻ  tìm kiếm
-        $categories = Category::all();
+        // Danh sách category
+        $categories = Category::orderBy('name')->get();
 
-        return view('products.index', compact('title', 'products', 'categories', 'keyword', 'categoryId'));
+        return view(
+            'admin.products.index',
+            compact('products', 'categories')
+        );
     }
 
-    // ✅ Dùng Route Model Binding: Tự động inject Product $product (không cần findOrFail)
-    public function show(Product $product) {
-        return "Đang xem chi tiết sản phẩm: " . $product->name;
+
+    /**
+     * Form thêm sản phẩm
+     */
+    public function create()
+    {
+        $categories = Category::orderBy('name')->get();
+
+        return view(
+            'admin.products.create',
+            compact('categories')
+        );
     }
 
-    // 1. Hiển thị form thêm mới
-    public function create() {
-        $categories = Category::all();
-        return view('products.create', compact('categories'));
-    }
 
-    // 2. Xử lý nhận dữ liệu từ Form và lưu vào DB
-    public function store(Request $request) {
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id', // 👈 Validate khóa ngoại bắt buộc
-            'name'        => 'required|min:3|max:255',
-            'price'       => 'required|numeric|min:0',
-            'stock'       => 'required|integer|min:0',
-        ], [
-            // Custom thông báo lỗi tiếng Việt (nếu thích)
-            'category_id.required' => 'Vui lòng chọn danh mục sản phẩm!',
-            'category_id.exists'   => 'Danh mục được chọn không hợp lệ!',
-        ]);
+    /**
+     * Lưu sản phẩm
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate(
+            [
+                'category_id' => 'required|exists:categories,id',
+
+                'name' => 'required|string|min:3|max:255',
+
+                'price' => 'required|numeric|min:0',
+
+                'stock' => 'required|integer|min:0',
+            ],
+            [
+                'category_id.required' =>
+                    'Vui lòng chọn danh mục sản phẩm!',
+
+                'category_id.exists' =>
+                    'Danh mục được chọn không hợp lệ!',
+
+                'name.required' =>
+                    'Vui lòng nhập tên sản phẩm!',
+
+                'name.min' =>
+                    'Tên sản phẩm phải có ít nhất 3 ký tự!',
+
+                'price.required' =>
+                    'Vui lòng nhập giá sản phẩm!',
+
+                'price.numeric' =>
+                    'Giá sản phẩm phải là số!',
+
+                'stock.required' =>
+                    'Vui lòng nhập số lượng!',
+
+                'stock.integer' =>
+                    'Số lượng phải là số nguyên!',
+            ]
+        );
 
         Product::create($validated);
 
-        return redirect('/products')->with('success', 'Thêm sản phẩm thành công!');
+        return redirect()
+            ->route('admin.products.index')
+            ->with(
+                'success',
+                'Thêm sản phẩm thành công!'
+            );
     }
 
-    // 3. Hiển thị Form Sửa sản phẩm -> Truyền cả Product và danh sách Categories
+
+    /**
+     * Xem chi tiết
+     */
+    public function show(Product $product)
+    {
+        $product->load('category');
+
+        return view(
+            'admin.products.show',
+            compact('product')
+        );
+    }
+
+
+    /**
+     * Form sửa sản phẩm
+     */
     public function edit(Product $product)
     {
-        // Nhờ Route Model Binding, $product đã tự động được findOrFail() rồi!
-        $categories = Category::all();
-        return view('products.edit', compact('product', 'categories'));
+        $categories = Category::orderBy('name')->get();
+
+        return view(
+            'admin.products.edit',
+            compact('product', 'categories')
+        );
     }
 
-    // 4. Cập nhật thông tin Sản phẩm
-    public function update(Request $request, Product $product)
-    {
-        $validatedData = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'name'        => 'required|min:3|max:255',
-            'price'       => 'required|numeric|min:0',
-            'stock'       => 'required|integer|min:0',
-        ]);
 
-        $product->update($validatedData);
+    /**
+     * Cập nhật sản phẩm
+     */
+    public function update(
+        Request $request,
+        Product $product
+    ) {
+        $validated = $request->validate(
+            [
+                'category_id' => 'required|exists:categories,id',
 
-        return redirect('/products')->with('success', 'Cập nhật sản phẩm thành công!');
+                'name' => 'required|string|min:3|max:255',
+
+                'price' => 'required|numeric|min:0',
+
+                'stock' => 'required|integer|min:0',
+            ],
+            [
+                'category_id.required' =>
+                    'Vui lòng chọn danh mục sản phẩm!',
+
+                'category_id.exists' =>
+                    'Danh mục được chọn không hợp lệ!',
+
+                'name.required' =>
+                    'Vui lòng nhập tên sản phẩm!',
+
+                'name.min' =>
+                    'Tên sản phẩm phải có ít nhất 3 ký tự!',
+
+                'price.required' =>
+                    'Vui lòng nhập giá sản phẩm!',
+
+                'price.numeric' =>
+                    'Giá sản phẩm phải là số!',
+
+                'stock.required' =>
+                    'Vui lòng nhập số lượng!',
+
+                'stock.integer' =>
+                    'Số lượng phải là số nguyên!',
+            ]
+        );
+
+        $product->update($validated);
+
+        return redirect()
+            ->route('admin.products.index')
+            ->with(
+                'success',
+                'Cập nhật sản phẩm thành công!'
+            );
     }
 
-    // 3. Xóa sản phẩm
+
+    /**
+     * Xóa sản phẩm
+     */
     public function destroy(Product $product)
     {
         $product->delete();
 
-        return redirect('/products');
+        return redirect()
+            ->route('admin.products.index')
+            ->with(
+                'success',
+                'Xóa sản phẩm thành công!'
+            );
     }
 }

@@ -1,53 +1,135 @@
 @extends('layouts.admin')
 
-@section('title', 'Sản phẩm')
-@section('page-title', 'Sản phẩm')
+@section('title', 'Products')
+
+@section('page-title', 'Products')
+
 
 @section('content')
 
-<div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-<div>
+<div class="mb-6">
 
-    <h2 class="text-2xl font-bold text-slate-900">
-        Sản phẩm
-    </h2>
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
 
-    <p class="mt-1 text-sm text-slate-500">
-        Quản lý tất cả sản phẩm của cửa hàng.
-    </p>
+        <div>
+
+            <h2 class="text-2xl font-bold text-slate-900">
+                Products
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+                Quản lý tất cả sản phẩm của website.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{{ route('admin.products.create') }}"
+            class="admin-btn-primary"
+        >
+            + Add Product
+        </a>
+
+    </div>
 
 </div>
 
 
-<a href="{{ route('admin.products.create') }}"
-   class="admin-btn-primary">
+{{-- Filters --}}
 
-    <svg class="mr-2 h-4 w-4"
-         fill="none"
-         stroke="currentColor"
-         viewBox="0 0 24 24">
+<div class="admin-card mb-6 p-4">
 
-        <path stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"/>
+    <form
+        action="{{ route('admin.products.index') }}"
+        method="GET"
+        class="flex flex-col gap-3 md:flex-row"
+    >
 
-    </svg>
+        {{-- Search --}}
 
-    Thêm sản phẩm
+        <div class="flex-1">
 
-</a>
+            <input
+                type="text"
+                name="search"
+                value="{{ request('search') }}"
+                placeholder="Tìm kiếm sản phẩm..."
+                class="admin-input"
+            >
 
-</div> <div class="admin-card overflow-hidden">
-{{-- HEADER --}}
-<div class="border-b border-slate-200 p-5">
+        </div>
 
-    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+
+        {{-- Status --}}
+
+        <div>
+
+            <select
+                name="status"
+                class="admin-input"
+            >
+
+                <option value="">
+                    Tất cả trạng thái
+                </option>
+
+                <option
+                    value="1"
+                    @selected(request('status') === '1')
+                >
+                    Đang bán
+                </option>
+
+                <option
+                    value="0"
+                    @selected(request('status') === '0')
+                >
+                    Ngừng bán
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <button
+            type="submit"
+            class="admin-btn-primary"
+        >
+            Tìm kiếm
+        </button>
+
+
+        @if(request()->hasAny(['search', 'status']))
+
+            <a
+                href="{{ route('admin.products.index') }}"
+                class="admin-btn-secondary"
+            >
+                Reset
+            </a>
+
+        @endif
+
+    </form>
+
+</div>
+
+
+{{-- Products table --}}
+
+<div class="admin-card overflow-hidden">
+
+
+    {{-- Header --}}
+
+    <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
 
         <div>
 
             <h3 class="font-semibold text-slate-900">
-                Tất cả sản phẩm
+                All Products
             </h3>
 
             <p class="mt-1 text-xs text-slate-500">
@@ -56,282 +138,279 @@
 
         </div>
 
-
-        <div class="relative w-full md:w-72">
-
-            <input type="text"
-                   placeholder="Tìm sản phẩm..."
-                   class="admin-input pl-10">
-
-            <svg class="absolute left-3 top-2.5 h-5 w-5 text-slate-400"
-                 fill="none"
-                 stroke="currentColor"
-                 viewBox="0 0 24 24">
-
-                <path stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M21 21l-4.35-4.35m2.35-5.65a8 8 0 11-16 0 8 8 0 0116 0z"/>
-
-            </svg>
-
-        </div>
-
     </div>
 
-</div>
 
+    {{-- Table --}}
 
-{{-- TABLE --}}
-<div class="overflow-x-auto">
+    <div class="overflow-x-auto">
 
-    <table class="min-w-full divide-y divide-slate-200">
+        <table class="min-w-full divide-y divide-slate-200">
 
-        <thead class="bg-slate-50">
-
-            <tr>
-
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Sản phẩm
-                </th>
-
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Giá
-                </th>
-
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Kho
-                </th>
-
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Trạng thái
-                </th>
-
-                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Thao tác
-                </th>
-
-            </tr>
-
-        </thead>
-
-
-        <tbody class="divide-y divide-slate-100 bg-white">
-
-            @forelse($products as $product)
-
-                <tr class="transition hover:bg-slate-50">
-
-
-                    {{-- PRODUCT --}}
-                    <td class="whitespace-nowrap px-6 py-4">
-
-                        <div class="flex items-center gap-3">
-
-                            <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
-
-                                <svg class="h-6 w-6"
-                                     fill="none"
-                                     stroke="currentColor"
-                                     viewBox="0 0 24 24">
-
-                                    <path stroke-linecap="round"
-                                          stroke-linejoin="round"
-                                          stroke-width="2"
-                                          d="M20 7l-8-4-8 4m16 0v10l-8 4-8-4V7m16 0l-8 4m-8-4l8 4m0 0v10"/>
-
-                                </svg>
-
-                            </div>
-
-
-                            <div>
-
-                                <p class="font-medium text-slate-800">
-
-                                    {{ $product->name }}
-
-                                </p>
-
-                                <p class="text-xs text-slate-500">
-
-                                    #{{ $product->id }}
-
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </td>
-
-
-                    {{-- PRICE --}}
-                    <td class="whitespace-nowrap px-6 py-4">
-
-                        <span class="font-semibold text-slate-800">
-
-                            {{ number_format($product->price) }}đ
-
-                        </span>
-
-                    </td>
-
-
-                    {{-- QUANTITY --}}
-                    <td class="whitespace-nowrap px-6 py-4">
-
-                        <span class="text-sm text-slate-600">
-
-                            {{ $product->quantity }}
-
-                        </span>
-
-                    </td>
-
-
-                    {{-- STATUS --}}
-                    <td class="whitespace-nowrap px-6 py-4">
-
-                        @if($product->status)
-
-                            <span class="inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">
-
-                                Đang bán
-
-                            </span>
-
-                        @else
-
-                            <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-
-                                Ngừng bán
-
-                            </span>
-
-                        @endif
-
-                    </td>
-
-
-                    {{-- ACTION --}}
-                    <td class="whitespace-nowrap px-6 py-4 text-right">
-
-                        <a href="{{ route('admin.products.edit', $product) }}"
-                           class="mr-2 inline-flex rounded-lg p-2 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600">
-
-                            <svg class="h-5 w-5"
-                                 fill="none"
-                                 stroke="currentColor"
-                                 viewBox="0 0 24 24">
-
-                                <path stroke-linecap="round"
-                                      stroke-linejoin="round"
-                                      stroke-width="2"
-                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.5-9.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 7.5-7.5z"/>
-
-                            </svg>
-
-                        </a>
-
-
-                        <form action="{{ route('admin.products.destroy', $product) }}"
-                              method="POST"
-                              class="inline">
-
-                            @csrf
-
-                            @method('DELETE')
-
-                            <button type="submit"
-                                    onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')"
-                                    class="inline-flex rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600">
-
-                                <svg class="h-5 w-5"
-                                     fill="none"
-                                     stroke="currentColor"
-                                     viewBox="0 0 24 24">
-
-                                    <path stroke-linecap="round"
-                                          stroke-linejoin="round"
-                                          stroke-width="2"
-                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m-8 0h10"/>
-
-                                </svg>
-
-                            </button>
-
-                        </form>
-
-                    </td>
-
-                </tr>
-
-            @empty
+            <thead class="bg-slate-50">
 
                 <tr>
 
-                    <td colspan="5"
-                        class="px-6 py-16 text-center">
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Product
+                    </th>
 
-                        <div class="mx-auto max-w-sm">
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Price
+                    </th>
 
-                            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100">
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Stock
+                    </th>
 
-                                <svg class="h-7 w-7 text-slate-400"
-                                     fill="none"
-                                     stroke="currentColor"
-                                     viewBox="0 0 24 24">
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Status
+                    </th>
 
-                                    <path stroke-linecap="round"
-                                          stroke-linejoin="round"
-                                          stroke-width="2"
-                                          d="M20 7l-8-4-8 4m16 0v10l-8 4-8-4V7m16 0l-8 4m-8-4l8 4m0 0v10"/>
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Created
+                    </th>
 
-                                </svg>
-
-                            </div>
-
-                            <h3 class="mt-3 font-semibold text-slate-800">
-                                Chưa có sản phẩm
-                            </h3>
-
-                            <p class="mt-1 text-sm text-slate-500">
-                                Hãy thêm sản phẩm đầu tiên của bạn.
-                            </p>
-
-                            <a href="{{ route('admin.products.create') }}"
-                               class="admin-btn-primary mt-4">
-
-                                Thêm sản phẩm
-
-                            </a>
-
-                        </div>
-
-                    </td>
+                    <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Action
+                    </th>
 
                 </tr>
 
-            @endforelse
-
-        </tbody>
-
-    </table>
-
-</div>
+            </thead>
 
 
-{{-- PAGINATION --}}
-@if($products->hasPages())
+            <tbody class="divide-y divide-slate-100 bg-white">
 
-    <div class="border-t border-slate-200 px-6 py-4">
+                @forelse($products as $product)
 
-        {{ $products->links() }}
+                    <tr class="transition hover:bg-slate-50">
+
+
+                        {{-- Product --}}
+
+                        <td class="px-6 py-4">
+
+                            <div class="flex items-center gap-4">
+
+                                {{-- Image --}}
+
+                                @if($product->image)
+
+                                    <img
+                                        src="{{ asset('storage/' . $product->image) }}"
+                                        alt="{{ $product->name }}"
+                                        class="h-12 w-12 rounded-lg object-cover"
+                                    >
+
+                                @else
+
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
+
+                                        <svg
+                                            class="h-6 w-6"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                            />
+                                        </svg>
+
+                                    </div>
+
+                                @endif
+
+
+                                <div>
+
+                                    <div class="font-semibold text-slate-800">
+                                        {{ $product->name }}
+                                    </div>
+
+                                    <div class="mt-1 text-xs text-slate-400">
+                                        #{{ $product->id }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        {{-- Price --}}
+
+                        <td class="px-6 py-4">
+
+                            <span class="font-medium text-slate-800">
+
+                                {{ number_format($product->price, 0, ',', '.') }} ₫
+
+                            </span>
+
+                        </td>
+
+
+                        {{-- Stock --}}
+
+                        <td class="px-6 py-4">
+
+                            @if($product->quantity > 0)
+
+                                <span class="text-sm text-slate-700">
+                                    {{ $product->quantity }}
+                                </span>
+
+                            @else
+
+                                <span class="text-sm font-medium text-red-600">
+                                    Hết hàng
+                                </span>
+
+                            @endif
+
+                        </td>
+
+
+                        {{-- Status --}}
+
+                        <td class="px-6 py-4">
+
+                            @if($product->status)
+
+                                <span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                                    Active
+                                </span>
+
+                            @else
+
+                                <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">
+                                    Inactive
+                                </span>
+
+                            @endif
+
+                        </td>
+
+
+                        {{-- Created --}}
+
+                        <td class="px-6 py-4 text-sm text-slate-500">
+
+                            {{ $product->created_at?->format('d/m/Y') }}
+
+                        </td>
+
+
+                        {{-- Actions --}}
+
+                        <td class="px-6 py-4 text-right">
+
+                            <a
+                                href="{{ route('admin.products.edit', $product) }}"
+                                class="mr-3 text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                            >
+                                Edit
+                            </a>
+
+
+                            <form
+                                action="{{ route('admin.products.destroy', $product) }}"
+                                method="POST"
+                                class="inline"
+                            >
+
+                                @csrf
+
+                                @method('DELETE')
+
+                                <button
+                                    type="submit"
+                                    onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')"
+                                    class="text-sm font-medium text-red-600 hover:text-red-800"
+                                >
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                @empty
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="px-6 py-16 text-center"
+                        >
+
+                            <div class="text-slate-400">
+
+                                <svg
+                                    class="mx-auto h-12 w-12"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.5"
+                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                    />
+                                </svg>
+
+
+                                <p class="mt-3 font-medium text-slate-600">
+                                    Chưa có sản phẩm
+                                </p>
+
+                                <p class="mt-1 text-sm">
+                                    Hãy thêm sản phẩm đầu tiên.
+                                </p>
+
+
+                                <a
+                                    href="{{ route('admin.products.create') }}"
+                                    class="mt-4 inline-flex text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                                >
+                                    + Thêm sản phẩm
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                @endforelse
+
+            </tbody>
+
+        </table>
 
     </div>
 
-@endif
+
+    {{-- Pagination --}}
+
+    @if($products->hasPages())
+
+        <div class="border-t border-slate-200 px-6 py-4">
+
+            {{ $products->links() }}
+
+        </div>
+
+    @endif
 
 </div>
 

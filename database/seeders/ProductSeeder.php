@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use App\Models\Product; // 👈 Import Model Product
 
 
@@ -127,6 +128,26 @@ class ProductSeeder extends Seeder
     //             'stock' => rand(5, 100),
     //         ]);
     //     }
-    Product::factory()->count(100)->create();
+
+
+    // Product::factory()->count(100)->create();
+
+    $products = []; 
+    for ($i = 1; $i <= 20; $i++) { 
+        $products[] = [ 
+            'name' => 'Product ' . $i, 
+            'category_id' => fake()->numberBetween(1,3),
+            'description' => 'Description for product ' . $i, 
+            'price' => fake()->randomFloat(2, 10, 1000), 
+            'quantity' => fake()->numberBetween(0, 100), 
+            'image' => 'storage/app/public/products/' . $i . '.jpg', 
+            'status' => fake()->boolean(90), 
+            'created_at' => now(), 
+            'updated_at' => now(), 
+        ]; 
+    } 
+    
+    DB::table('products')->insert($products); 
+
     }
 }

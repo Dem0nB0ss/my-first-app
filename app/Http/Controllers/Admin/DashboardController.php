@@ -11,6 +11,7 @@ class DashboardController extends Controller
     public function index()
     {
         $userCount = User::count();
+        $productCount = Product::count();
 
         $recentUsers = User::latest()
             ->take(5)
@@ -18,6 +19,7 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact(
             'userCount',
+            'productCount',
             'recentUsers'
         ));
     }

@@ -12,7 +12,19 @@ class Product extends Model
     use HasFactory;
 
     // Khai báo các cột được phép nhập/thêm dữ liệu
-    protected $fillable = ['name', 'category_id', 'price', 'stock'];
+    protected $fillable = [
+        'name',
+        'description',
+        'price',
+        'quantity',
+        'image',
+        'status',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'status' => 'boolean',
+    ];
 
     // Lấy danh mục mà sản phẩm này thuộc về
     public function category(): BelongsTo
