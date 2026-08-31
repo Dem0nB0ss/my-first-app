@@ -43,13 +43,12 @@
     <form
         action="{{ route('admin.products.index') }}"
         method="GET"
-        class="flex flex-col gap-3 md:flex-row"
+        class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4"
     >
 
         {{-- Search --}}
 
-        <div class="flex-1">
-
+        <div class="lg:col-span-2">
             <input
                 type="text"
                 name="search"
@@ -57,22 +56,38 @@
                 placeholder="Tìm kiếm sản phẩm..."
                 class="admin-input"
             >
-
         </div>
+
+        {{-- Category --}}
+
+        <div>
+            <select
+                name="category_id"
+                class="admin-input"
+            >
+                <option value="">Tất cả danh mục</option>
+
+                @foreach($categories as $category)
+                    <option
+                        value="{{ $category->id }}"
+                        @selected(request('category_id') == $category->id)
+                    >
+                        {{ $category->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
 
 
         {{-- Status --}}
 
         <div>
-
             <select
                 name="status"
                 class="admin-input"
             >
-
-                <option value="">
-                    Tất cả trạng thái
-                </option>
+                <option value="">Tất cả trạng thái</option>
 
                 <option
                     value="1"
@@ -87,33 +102,27 @@
                 >
                     Ngừng bán
                 </option>
-
             </select>
-
         </div>
 
-
-        <button
-            type="submit"
-            class="admin-btn-primary"
-        >
-            Tìm kiếm
-        </button>
-
-
-        @if(request()->hasAny(['search', 'status']))
-
-            <a
-                href="{{ route('admin.products.index') }}"
-                class="admin-btn-secondary"
+        <div class="flex gap-2">
+            <button
+                type="submit"
+                class="admin-btn-primary flex-1"
             >
-                Reset
-            </a>
+                Tìm kiếm
+            </button>
 
-        @endif
-
+            @if(request()->hasAny(['search', 'category_id', 'status']))
+                <a
+                    href="{{ route('admin.products.index') }}"
+                    class="admin-btn-secondary"
+                >
+                    Reset
+                </a>
+            @endif
+        </div>
     </form>
-
 </div>
 
 
@@ -153,6 +162,10 @@
 
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                         Product
+                    </th>
+
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Category
                     </th>
 
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -242,6 +255,13 @@
 
                         </td>
 
+                        {{-- Category --}}
+
+                        <td class="px-6 py-4">
+                            <span class="inline-flex rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
+                                {{ $product->category->name }}
+                            </span>
+                        </td>
 
                         {{-- Price --}}
 
@@ -259,23 +279,20 @@
                         {{-- Stock --}}
 
                         <td class="px-6 py-4">
-
-                            @if($product->quantity > 0)
-
-                                <span class="text-sm text-slate-700">
-                                    {{ $product->quantity }}
-                                </span>
-
-                            @else
-
-                                <span class="text-sm font-medium text-red-600">
+                            @if($product->quantity <= 0)
+                                <span class="inline-flex rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700">
                                     Hết hàng
                                 </span>
-
+                            @elseif($product->quantity <= 5)
+                                <span class="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">
+                                    Sắp hết · {{ $product->quantity }}
+                                </span>
+                            @else
+                                <span class="inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                                    Còn hàng · {{ $product->quantity }}
+                                </span>
                             @endif
-
                         </td>
-
 
                         {{-- Status --}}
 
@@ -348,7 +365,7 @@
                     <tr>
 
                         <td
-                            colspan="6"
+                            colspan="7"
                             class="px-6 py-16 text-center"
                         >
 

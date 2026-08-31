@@ -10,14 +10,41 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('category')
-            ->latest()
-            ->paginate(10);
+        $query = Product::with('category');
 
-        return view('admin.products.index', compact('products'));
+        // Search theo tên sản phẩm
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        // Filter theo category
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
+        }
+
+        // Filter theo status
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $products = $query
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        $categories = Category::orderBy('name')->get();
+
+        return view('admin.products.index', compact(
+            'products',
+            'categories'
+        ));
     }
+
+
 
     public function create()
     {
