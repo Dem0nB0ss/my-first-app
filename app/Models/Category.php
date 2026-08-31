@@ -10,6 +10,11 @@ class Category extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+    ];
+
+
     // Lấy tất cả sản phẩm thuộc danh mục này
     public function products(): HasMany
     {

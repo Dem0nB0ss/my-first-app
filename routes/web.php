@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,7 +36,12 @@ Route::middleware(['auth', 'admin'])
             ->name('dashboard');
 
         // Products
-        Route::resource('/products', ProductController::class);
+        Route::resource('products', ProductController::class)
+            ->except(['show']);
+
+        //Categories
+        Route::resource('categories', CategoryController::class)
+            ->except(['show']);
 
         // Users
         Route::resource('/users', UserController::class);

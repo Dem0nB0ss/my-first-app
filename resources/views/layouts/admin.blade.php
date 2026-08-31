@@ -22,6 +22,7 @@
     x-data="{
         sidebarOpen: false,
         productsOpen: false,
+        categoriesOpen: false,
         usersOpen: false,
         profileOpen: false
     }"
@@ -243,6 +244,85 @@
                 </div>
 
             </div>
+
+            {{-- ====================================================
+                 CATEGORIES DROPDOWN
+            ===================================================== --}}
+
+            <div class="mb-1">
+
+                <button
+                    @click="categoriesOpen = !categoriesOpen"
+                    class="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                >
+
+                    <span class="flex items-center gap-3">
+
+                        <svg
+                            class="h-5 w-5 shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                            />
+                        </svg>
+
+                        <span>
+                            Categories
+                        </span>
+
+                    </span>
+
+
+                    <svg
+                        class="h-4 w-4 transition-transform"
+                        :class="categoriesOpen ? 'rotate-180' : ''"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 9l-7 7-7-7"
+                        />
+                    </svg>
+
+                </button>
+
+
+                <div
+                    x-show="categoriesOpen"
+                    x-cloak
+                    x-transition
+                    class="mt-1 space-y-1 pl-11"
+                >
+
+                    <a
+                        href="{{ route('admin.categories.index') }}"
+                        class="{{ request()->routeIs('admin.categories.*') ? 'text-white' : 'text-slate-400' }} block rounded-lg px-3 py-2 text-sm hover:bg-slate-800 hover:text-white"
+                    >
+                        All Categories
+                    </a>
+
+
+                    <a
+                        href="{{ route('admin.categories.create') }}"
+                        class="block rounded-lg px-3 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white"
+                    >
+                        Add Categories
+                    </a>
+
+                </div>
+
+            </div>
+
 
 
             {{-- ====================================================
