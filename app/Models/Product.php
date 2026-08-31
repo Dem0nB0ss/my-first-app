@@ -13,6 +13,7 @@ class Product extends Model
 
     // Khai báo các cột được phép nhập/thêm dữ liệu
     protected $fillable = [
+        'category_id',
         'name',
         'description',
         'price',

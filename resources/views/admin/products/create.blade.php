@@ -92,6 +92,37 @@
 
                 </div>
 
+                {{-- Category --}}
+
+                <div>
+
+                    <label class="mb-2 block text-sm font-medium text-slate-700">
+                        Category
+                    </label>
+
+                    <select
+                        name="category_id"
+                        class="admin-input"
+                        required
+                    >
+
+                        <option value="">-- Select Category --</option>
+
+                        @foreach($categories as $category)
+
+                            <option
+                                value="{{ $category->id }}"
+                                @selected(old('category_id') == $category->id)
+                            >
+                                {{ $category->name }}
+                            </option>
+
+                        @endforeach
+
+                    </select>
+
+                </div>
+
 
                 {{-- Description --}}
 
