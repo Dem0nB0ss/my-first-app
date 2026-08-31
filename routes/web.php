@@ -6,6 +6,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -36,7 +38,7 @@ Route::middleware(['auth', 'admin'])
             ->name('dashboard');
 
         // Products
-        Route::resource('products', ProductController::class)
+        Route::resource('products', AdminProductController::class)
             ->except(['show']);
 
         //Categories
