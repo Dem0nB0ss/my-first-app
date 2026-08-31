@@ -14,8 +14,6 @@ class Category extends Model
         'name',
     ];
 
-
-    // Lấy tất cả sản phẩm thuộc danh mục này
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
